@@ -15,15 +15,10 @@ const App = (props) => {
   </div>`;
 };
 
-setInterval(async () => {
-  let response = await fetch('/api/cpus/json');
-  if (response.status !== 200) {
-    const app = h('pre', null, 'error');
-    render(app, document.body);
-  }
-
-  let json = await response.json();
-  // const app = h('pre', null, JSON.stringify(json, null, 2));
-  // render(app, document.body);
+const url = new URL('/ws/cpus/json', window.location.href);
+url.protocol = url.protocol.replace('http', 'ws');
+let ws = new WebSocket(url.href);
+ws.onmessage = (ev) => {
+  let json = JSON.parse(ev.data);
   render(html`<${App} cpus=${json}></${App}>`, document.body);
-}, 1000);
+};
